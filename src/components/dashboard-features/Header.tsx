@@ -256,7 +256,12 @@ export function Header() {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-500">Sign out</DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-500 cursor-pointer"
+                onClick={() => navigate('/login')}
+              >
+                Sign out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

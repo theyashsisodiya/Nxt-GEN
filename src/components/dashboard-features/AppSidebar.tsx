@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Radar,
@@ -47,6 +47,7 @@ const supportNav = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
@@ -166,6 +167,7 @@ export function AppSidebar() {
           )}
 
           <button
+            onClick={() => navigate('/login')}
             className={`
               w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm
               text-sidebar-foreground/50 hover:text-red-400 hover:bg-red-500/10
