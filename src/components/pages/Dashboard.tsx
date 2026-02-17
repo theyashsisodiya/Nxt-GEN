@@ -29,13 +29,16 @@ import {
   Settings2,
   Layers,
   Container,
-  Globe
+  Globe,
+  Sparkles,
+  Info
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WorkflowChatbox } from "@/components/dashboard-features/WorkflowChatbox";
 import { WorkflowDetailView } from "@/components/dashboard-features/WorkflowDetailView";
 
@@ -87,6 +90,8 @@ const Dashboard = () => {
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [showDeployModal, setShowDeployModal] = useState(false);
+  const [showIntegrationModal, setShowIntegrationModal] = useState(false);
+  const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null);
   const [workflowPrompt, setWorkflowPrompt] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [repoUrl, setRepoUrl] = useState("");
@@ -622,22 +627,40 @@ const Dashboard = () => {
                       </Button>
                     )}
 
-                    {/* Auto-heal toggle */}
-                    <button
-                      onClick={(e) => handleToggleAutoHeal(workflow.id, e)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${workflow.autoHeal
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-muted/30 text-muted-foreground hover:text-foreground'
-                        }`}
-                      title={workflow.autoHeal ? 'Auto-heal enabled' : 'Auto-heal disabled'}
-                    >
-                      {workflow.autoHeal ? (
-                        <ToggleRight className="w-3.5 h-3.5" />
-                      ) : (
-                        <ToggleLeft className="w-3.5 h-3.5" />
-                      )}
-                      Auto-heal
-                    </button>
+                    {/* Auto-heal toggle with tooltip */}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => handleToggleAutoHeal(workflow.id, e)}
+                            className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${workflow.autoHeal
+                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              : 'bg-muted/30 text-muted-foreground hover:text-foreground'
+                              }`}
+                          >
+                            {workflow.autoHeal ? (
+                              <>
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <ToggleRight className="w-3.5 h-3.5" />
+                              </>
+                            ) : (
+                              <ToggleLeft className="w-3.5 h-3.5" />
+                            )}
+                            Auto-heal
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <div className="space-y-1">
+                            <p className="font-medium text-xs">🔮 AI-Powered Auto-Healing</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {workflow.autoHeal
+                                ? "Automatically detects and fixes failures using AI. Analyzes errors, applies fixes, and retries failed steps."
+                                : "Enable to let AI automatically troubleshoot and recover from failures without manual intervention."}
+                            </p>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
 
                     <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
@@ -678,7 +701,10 @@ const Dashboard = () => {
                   <div
                     key={i}
                     className="flex items-center justify-between py-2.5 px-2 rounded-lg hover:bg-muted/20 cursor-pointer transition-all group"
-                    onClick={() => alert(`${integration.name}\n\nStatus: ${integration.status}\nLast sync: ${formatTime(integration.lastSyncSeconds)}\n${integration.details}`)}
+                    onClick={() => {
+                      setSelectedIntegration(integration);
+                      setShowIntegrationModal(true);
+                    }}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-2 h-2 rounded-full ${style.dot}`} />
@@ -856,8 +882,8 @@ const Dashboard = () => {
                       key={tool}
                       onClick={() => toggleToolSelection(tool)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${selectedTools.includes(tool)
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-muted/30 border-border hover:border-primary/50'
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted/30 border-border hover:border-primary/50'
                         }`}
                     >
                       {tool}
@@ -882,8 +908,8 @@ const Dashboard = () => {
                       key={cloud.id}
                       onClick={() => setSelectedCloud(selectedCloud === cloud.id ? null : cloud.id)}
                       className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${selectedCloud === cloud.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:bg-muted/20"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:bg-muted/20"
                         }`}
                     >
                       <cloud.icon className={`w-6 h-6 ${cloud.color}`} />
@@ -1193,6 +1219,133 @@ const Dashboard = () => {
               <Button onClick={handleQuickDeploy} className="gap-2">
                 <Play className="w-4 h-4" />
                 Deploy Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Integration Details Modal */}
+      {showIntegrationModal && selectedIntegration && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-2xl animate-in">
+            <div className="flex items-center justify-between p-5 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <selectedIntegration.icon className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">{selectedIntegration.name}</h2>
+                  <p className="text-xs text-muted-foreground">Integration Details</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => {
+                  setShowIntegrationModal(false);
+                  setSelectedIntegration(null);
+                }}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Status */}
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${getStatusStyle(selectedIntegration.status).dot}`} />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <p className={`text-sm font-medium ${getStatusStyle(selectedIntegration.status).text}`}>
+                      {selectedIntegration.status.charAt(0).toUpperCase() + selectedIntegration.status.slice(1)}
+                    </p>
+                  </div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={selectedIntegration.status === 'active'
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                    : 'bg-blue-500/10 text-blue-400 border-blue-500/30'}
+                >
+                  {selectedIntegration.status === 'active' ? 'Connected' : 'Syncing'}
+                </Badge>
+              </div>
+
+              {/* Last Sync */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Last Sync</p>
+                  </div>
+                  <p className="text-lg font-semibold">{formatTime(selectedIntegration.lastSyncSeconds)}</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-4 h-4 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Activity</p>
+                  </div>
+                  <p className="text-lg font-semibold">
+                    {selectedIntegration.status === 'syncing' ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                        <span className="text-blue-400">Live</span>
+                      </span>
+                    ) : (
+                      <span className="text-emerald-400">Healthy</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="p-4 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground">Details</p>
+                </div>
+                <p className="text-sm text-foreground">{selectedIntegration.details}</p>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => {
+                    alert(`Refreshing ${selectedIntegration.name} connection...`);
+                    setShowIntegrationModal(false);
+                  }}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => {
+                    alert(`Opening ${selectedIntegration.name} settings...`);
+                    setShowIntegrationModal(false);
+                  }}
+                >
+                  <Settings2 className="w-4 h-4" />
+                  Configure
+                </Button>
+              </div>
+            </div>
+
+            <div className="p-5 border-t border-border/50 flex justify-end bg-muted/20">
+              <Button
+                onClick={() => {
+                  setShowIntegrationModal(false);
+                  setSelectedIntegration(null);
+                }}
+              >
+                Close
               </Button>
             </div>
           </div>
