@@ -156,8 +156,8 @@ export function Header() {
     setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
-  const getIcon = (type: string) => {
-    const icons: Record<string, JSX.Element> = {
+  const getIcon = (type: string): React.JSX.Element => {
+    const icons: Record<string, React.JSX.Element> = {
       success: <CheckCircle className="w-4 h-4 text-emerald-500" />,
       error: <XCircle className="w-4 h-4 text-red-500" />,
       warning: <AlertTriangle className="w-4 h-4 text-amber-500" />,
