@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   ENTERPRISE-GRADE DESIGN SYSTEM
+   Inspired by Linear, Vercel, Raycast
+============================================ */
+
+@layer base {
+    :root {
+        /* Typography */
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+        /* Refined Dark Theme */
+        --background: 220 16% 8%;
+        --foreground: 220 10% 95%;
+        --card: 220 16% 10%;
+        --card-foreground: 220 10% 95%;
+        --popover: 220 16% 9%;
+        --popover-foreground: 220 10% 95%;
+
+        /* Primary - Electric Indigo */
+        --primary: 262 83% 58%;
+        --primary-foreground: 0 0% 100%;
+
+        /* Secondary */
+        --secondary: 220 14% 15%;
+        --secondary-foreground: 220 10% 80%;
+
+        /* Accent - Cyan */
+        --accent: 190 95% 45%;
+        --accent-foreground: 220 16% 8%;
+
+        /* Muted */
+        --muted: 220 14% 14%;
+        --muted-foreground: 220 10% 50%;
+
+        /* Borders & Input */
+        --border: 220 14% 18%;
+        --input: 220 14% 13%;
+        --ring: 262 83% 58%;
+
+        /* Semantic */
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 100%;
+
+        /* Chart */
+        --chart-1: 262 83% 58%;
+        --chart-2: 190 95% 45%;
+        --chart-3: 150 60% 45%;
+        --chart-4: 45 90% 55%;
+        --chart-5: 330 80% 55%;
+
+        /* Sidebar */
+        --sidebar-background: 220 16% 6%;
+        --sidebar-foreground: 220 10% 80%;
+        --sidebar-primary: 262 83% 58%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 220 14% 12%;
+        --sidebar-accent-foreground: 220 10% 95%;
+        --sidebar-border: 220 14% 14%;
+        --sidebar-ring: 262 83% 58%;
+
+        /* Radius */
+        --radius: 0.5rem;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    html {
+        font-feature-settings: "cv11", "ss01", "ss03";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        letter-spacing: -0.011em;
+    }
+
+    ::selection {
+        @apply bg-primary/25 text-foreground;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-border/50 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-border;
+    }
+}
+
+@layer components {
+
+    /* --- Typography --- */
+    .text-gradient-brand {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    }
+
+    /* --- Cards --- */
+    .card-base {
+        @apply bg-card border border-border/50 rounded-xl;
+    }
+
+    .card-interactive {
+        @apply bg-card border border-border/50 rounded-xl transition-all duration-200;
+    }
+
+    .card-interactive:hover {
+        @apply border-border bg-card/80;
+    }
+
+    /* --- Buttons --- */
+    .btn-primary {
+        @apply bg-primary text-primary-foreground font-medium;
+        @apply hover:bg-primary/90 transition-all duration-150;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 20px hsl(var(--primary) / 0.25);
+    }
+
+    /* --- Input --- */
+    .input-base {
+        @apply bg-input border border-border/50 rounded-lg;
+        @apply placeholder:text-muted-foreground/50;
+        @apply focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring/50;
+        @apply transition-all duration-150;
+    }
+
+    /* --- Status --- */
+    .status-dot {
+        @apply w-2 h-2 rounded-full;
+    }
+
+    /* --- Sidebar --- */
+    .sidebar-base {
+        @apply bg-sidebar border-r border-sidebar-border;
+    }
+
+    /* --- Glass --- */
+    .glass {
+        @apply bg-card/70 backdrop-blur-xl border border-border/50;
+    }
+
+    /* --- Panel --- */
+    .panel {
+        @apply bg-card border border-border/50 rounded-xl overflow-hidden;
+    }
+}
+
+@layer utilities {
+    .animate-in {
+        animation: animate-in 0.2s ease-out;
+    }
+
+    @keyframes animate-in {
+        from {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Legacy support */
+.gradient-card {
+    @apply card-base;
+}
+
+.glassmorphism {
+    @apply glass;
+}
+
+.text-gradient-primary {
+    @apply text-gradient-brand;
+}
+
+.btn-premium {
+    @apply btn-primary;
+}
